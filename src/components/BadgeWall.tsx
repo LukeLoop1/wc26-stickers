@@ -53,6 +53,11 @@ export function BadgeWall({ teams, stickersByCode, collection, onJump, onClose }
                       if (!longPressed.current) onJump(t.page);
                     }}
                     onPointerLeave={() => window.clearTimeout(pressTimer.current)}
+                    onPointerCancel={() => {
+                      window.clearTimeout(pressTimer.current);
+                      // touch turned into a scroll — suppress the jump on pointerup
+                      longPressed.current = true;
+                    }}
                     onContextMenu={(e) => e.preventDefault()}
                   >
                     {t.flag}
