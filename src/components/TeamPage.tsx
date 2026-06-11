@@ -10,14 +10,22 @@ interface Props {
   onTap: (key: string, label: string) => void;
 }
 
+function onColor(hex: string): string {
+  const n = parseInt(hex.slice(1), 16);
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  // perceived luminance (ITU-R BT.709)
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 150 ? "#111111" : "#ffffff";
+}
+
 export function TeamPage({ team, stickers, collection, onTap }: Props) {
   const keys = stickers.map((s) => keyOf(s.code, s.num));
   const have = countHave(collection, keys);
-  const complete = have === stickers.length;
+  const complete = stickers.length > 0 && have === stickers.length;
   const themeVars = {
     "--team-primary": team.colors.primary,
     "--team-secondary": team.colors.secondary,
     "--team-accent": team.colors.accent,
+    "--team-on-primary": onColor(team.colors.primary),
   } as CSSProperties;
 
   return (
@@ -29,7 +37,7 @@ export function TeamPage({ team, stickers, collection, onTap }: Props) {
         <div className="team-progress">
           <span>{have}/{stickers.length}</span>
           <div className="bar">
-            <div className="bar-fill" style={{ width: `${(have / stickers.length) * 100}%` }} />
+            <div className="bar-fill" style={{ width: `${stickers.length > 0 ? (have / stickers.length) * 100 : 0}%` }} />
           </div>
         </div>
       </header>

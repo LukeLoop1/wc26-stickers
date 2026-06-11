@@ -89,12 +89,12 @@ body {
 }
 .slot-have {
   background: var(--team-primary);
-  color: #fff;
+  color: var(--team-on-primary, #fff);
   animation: stick 0.18s ease-out;
 }
 .slot-spare {
   background: var(--team-primary);
-  color: #fff;
+  color: var(--team-on-primary, #fff);
 }
 .slot-spare::after {
   content: "×2";
@@ -113,6 +113,16 @@ body {
 }
 @keyframes stick { from { transform: scale(1.25); } to { transform: scale(1); } }
 @keyframes shimmer { from { background-position: 0% 0%; } to { background-position: 200% 200%; } }
+
+.slot:focus-visible, .crest:focus-visible, .sheet-btn:focus-visible {
+  outline: 3px solid var(--team-accent, var(--gold));
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slot-foil.slot-have, .slot-foil.slot-spare { animation: none; }
+  .slot-have { animation: none; }
+}
 
 /* ---------- Bottom bar ---------- */
 .bottom-bar {
