@@ -5,6 +5,7 @@ import type { Collection, Sticker, Team } from "./lib/types";
 import { countHave, cycle, keyOf, stateOf } from "./lib/collection";
 import { loadCollection, saveCollection } from "./lib/storage";
 import { AlbumPager } from "./components/AlbumPager";
+import { BadgeWall } from "./components/BadgeWall";
 
 const stickers = stickersData as unknown as Sticker[];
 const teams = (teamsData as unknown as Team[]).slice().sort((a, b) => a.page - b.page);
@@ -100,7 +101,18 @@ export default function App() {
         <button aria-label="Export and backup" aria-expanded={overlay === "export"} onClick={() => setOverlay("export")}>↗</button>
       </nav>
 
-      {/* BadgeWall overlay — Task 10 */}
+      {overlay === "wall" && (
+        <BadgeWall
+          teams={teams}
+          stickersByCode={stickersByCode}
+          collection={collection}
+          onJump={(p) => {
+            setPage(p);
+            setOverlay("none");
+          }}
+          onClose={() => setOverlay("none")}
+        />
+      )}
       {/* ExportSheet overlay — Task 11 */}
 
       {toast && (
