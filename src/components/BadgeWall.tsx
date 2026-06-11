@@ -1,4 +1,4 @@
-import { useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { Collection, Sticker, Team } from "../lib/types";
 import { countHave, keyOf } from "../lib/collection";
 
@@ -8,12 +8,21 @@ interface Props {
   collection: Collection;
   onJump: (page: number) => void;
   onClose: () => void;
+  scrollToGroup?: string;
 }
 
-export function BadgeWall({ teams, stickersByCode, collection, onJump, onClose }: Props) {
+export function BadgeWall({ teams, stickersByCode, collection, onJump, onClose, scrollToGroup }: Props) {
   const [stats, setStats] = useState<string | null>(null);
   const pressTimer = useRef<number | undefined>(undefined);
   const longPressed = useRef(false);
+
+  useEffect(() => {
+    if (scrollToGroup) {
+      document
+        .getElementById(`wall-group-${scrollToGroup}`)
+        ?.scrollIntoView({ block: "start" });
+    }
+  }, [scrollToGroup]);
 
   const progress = (t: Team) => {
     const keys = (stickersByCode.get(t.code) ?? []).map((s) => keyOf(s.code, s.num));
@@ -30,7 +39,7 @@ export function BadgeWall({ teams, stickersByCode, collection, onJump, onClose }
         const members = teams.filter((t) => t.group === g);
         if (members.length === 0) return null;
         return (
-          <div key={g ?? "specials"}>
+          <div key={g ?? "specials"} id={`wall-group-${g ?? "specials"}`}>
             <div className="wall-group-label">{g ? `Group ${g}` : "Specials"}</div>
             <div className="wall-grid">
               {members.map((t) => {

@@ -203,3 +203,120 @@ body {
 @media (min-width: 600px) {
   .pager { max-width: 480px; margin: 0 auto; }
 }
+
+/* ---------- Landing page (Midnight Gold) ---------- */
+.landing {
+  min-height: 100dvh;
+  background: #0d0d0d;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: max(env(safe-area-inset-top), 32px) 20px calc(72px + env(safe-area-inset-bottom));
+  max-width: 480px;
+  margin: 0 auto;
+  overflow-y: auto;
+  gap: 8px;
+}
+
+.landing-hero-wrap {
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.landing-hero {
+  background: linear-gradient(160deg, #f1d08a, #d4a24c 45%, #8a6a2f);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: 72px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -2px;
+}
+
+.landing-sub {
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: #888;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.landing-ring-wrap {
+  margin: 8px 0;
+}
+
+.landing-continue {
+  display: block;
+  width: 100%;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 50px;
+  background: linear-gradient(135deg, #f1d08a, #d4a24c 60%, #8a6a2f);
+  color: #111;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  text-align: center;
+  margin: 8px 0;
+  letter-spacing: 0.2px;
+}
+.landing-continue:active { opacity: 0.85; }
+
+.landing-chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 4px 0 8px;
+}
+
+.landing-chip {
+  background: #1c1c1c;
+  color: #e8e8e8;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.landing-chip:active { opacity: 0.8; }
+
+.landing-groups {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.landing-group-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+}
+.landing-group-btn:active { opacity: 0.75; }
+
+.landing-group-count {
+  font-size: 10px;
+  color: #888;
+  font-weight: 600;
+}
+
+/* Ring animation */
+.ring-progress {
+  transition: stroke-dasharray 0.6s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring-progress { transition: none; }
+}

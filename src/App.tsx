@@ -7,6 +7,7 @@ import { loadCollection, saveCollection } from "./lib/storage";
 import { AlbumPager } from "./components/AlbumPager";
 import { BadgeWall } from "./components/BadgeWall";
 import { ExportSheet } from "./components/ExportSheet";
+import { LandingPage } from "./components/LandingPage";
 
 const stickers = stickersData as unknown as Sticker[];
 const teams = (teamsData as unknown as Team[]).slice().sort((a, b) => a.page - b.page);
@@ -30,7 +31,9 @@ export default function App() {
     const p = Number(localStorage.getItem(PAGE_KEY));
     return Number.isInteger(p) && p >= 0 && p < teams.length ? p : 0;
   });
+  const [view, setView] = useState<"home" | "album">("home");
   const [overlay, setOverlay] = useState<"none" | "wall" | "export">("none");
+  const [wallGroup, setWallGroup] = useState<string | null>(null);
   const [toast, setToast] = useState<Toast | null>(null);
   const toastTimer = useRef<number | undefined>(undefined);
 
@@ -50,11 +53,17 @@ export default function App() {
 
   useEffect(() => saveCollection(localStorage, collection), [collection]);
   useEffect(() => localStorage.setItem(PAGE_KEY, String(page)), [page]);
+
+  // theme-color: #0d0d0d on home, per-team primary on album
   useEffect(() => {
+    const color =
+      view === "home"
+        ? "#0d0d0d"
+        : (teams[page]?.colors.primary ?? "#ffffff");
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute("content", teams[page]?.colors.primary ?? "#ffffff");
-  }, [page]);
+      ?.setAttribute("content", color);
+  }, [page, view]);
 
   function showToast(t: Toast) {
     window.clearTimeout(toastTimer.current);
@@ -90,16 +99,37 @@ export default function App() {
 
   return (
     <>
-      <AlbumPager
-        teams={teams}
-        stickersByCode={stickersByCode}
-        collection={collection}
-        page={page}
-        onTap={handleTap}
-        onPageChange={setPage}
-      />
+      {view === "home" ? (
+        <LandingPage
+          teams={teams}
+          stickersByCode={stickersByCode}
+          collection={collection}
+          currentPage={page}
+          totalHave={totalHave}
+          totalAll={stickers.length}
+          onContinue={() => setView("album")}
+          onOpenGroup={(g) => {
+            setWallGroup(g);
+            setOverlay("wall");
+          }}
+          onJumpToPage={(p) => {
+            setPage(p);
+            setView("album");
+          }}
+        />
+      ) : (
+        <AlbumPager
+          teams={teams}
+          stickersByCode={stickersByCode}
+          collection={collection}
+          page={page}
+          onTap={handleTap}
+          onPageChange={setPage}
+        />
+      )}
 
       <nav className="bottom-bar">
+        <button aria-label="Home" onClick={() => setView("home")}>🏠</button>
         <button aria-label="Jump to team" aria-expanded={overlay === "wall"} onClick={() => setOverlay("wall")}>⊞</button>
         <span className="overall">{totalHave}/{stickers.length}</span>
         <button aria-label="Export and backup" aria-expanded={overlay === "export"} onClick={() => setOverlay("export")}>↗</button>
@@ -110,11 +140,17 @@ export default function App() {
           teams={teams}
           stickersByCode={stickersByCode}
           collection={collection}
+          scrollToGroup={wallGroup ?? undefined}
           onJump={(p) => {
             setPage(p);
+            setView("album");
             setOverlay("none");
+            setWallGroup(null);
           }}
-          onClose={() => setOverlay("none")}
+          onClose={() => {
+            setOverlay("none");
+            setWallGroup(null);
+          }}
         />
       )}
       {overlay === "export" && (
