@@ -1,5 +1,8 @@
 .superpowers/
 
+# Raw / generated source data (not committed)
+scripts/raw-stickers.json
+
 # Vite / Node
 node_modules
 dist
