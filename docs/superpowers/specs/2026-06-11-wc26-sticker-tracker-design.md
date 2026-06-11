@@ -11,7 +11,7 @@ A personal-use, mobile-first web app for Lucas to track his Panini FIFA World Cu
 ## Scope
 
 **In scope:**
-- Track all 992 album slots of the NA edition: 48 teams × 20 stickers, FWC intro/special section (20), Coca-Cola exclusives (12, codes C1–C12), Panini `00` sticker
+- Track all ~992 album slots of the NA edition: 48 teams × 20 stickers (960), plus the FWC intro/special section, Coca-Cola exclusives (codes C1–C12), and the Panini `00` sticker. The exact special-section split varies across sources (the community dataset totals 992); the authoritative count is taken from the seed dataset and verified against the physical album (see Edge Cases).
 - Three states per sticker: **need** (default) / **have** / **spare**
 - Page-flip album navigation + badge-wall jump menu
 - Per-team color theming
