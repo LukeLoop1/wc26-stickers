@@ -31,11 +31,25 @@ export function ExportSheet({
     }
   }
 
-  function downloadBackup() {
-    const blob = new Blob([serializeBackup(collection)], { type: "application/json" });
+  async function downloadBackup() {
+    const json = serializeBackup(collection);
+    const filename = `wc26-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    // iOS standalone PWAs silently drop a.click() blob downloads — prefer the share sheet there
+    const file = new File([json], filename, { type: "application/json" });
+    if (navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file] });
+        onBackedUp();
+        setStatus("Backup shared ✓");
+        return;
+      } catch {
+        return; // user cancelled the share sheet — don't mark as backed up
+      }
+    }
+    const blob = new Blob([json], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `wc26-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = filename;
     a.click();
     URL.revokeObjectURL(a.href);
     onBackedUp();
