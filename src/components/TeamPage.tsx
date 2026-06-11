@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { memo, type CSSProperties } from "react";
 import type { Collection, Sticker, Team } from "../lib/types";
 import { countHave, keyOf, stateOf } from "../lib/collection";
 import { StickerSlot } from "./StickerSlot";
@@ -17,7 +17,7 @@ function onColor(hex: string): string {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b > 150 ? "#111111" : "#ffffff";
 }
 
-export function TeamPage({ team, stickers, collection, onTap }: Props) {
+export const TeamPage = memo(function TeamPage({ team, stickers, collection, onTap }: Props) {
   const keys = stickers.map((s) => keyOf(s.code, s.num));
   const have = countHave(collection, keys);
   const complete = stickers.length > 0 && have === stickers.length;
@@ -56,4 +56,4 @@ export function TeamPage({ team, stickers, collection, onTap }: Props) {
       </div>
     </section>
   );
-}
+});

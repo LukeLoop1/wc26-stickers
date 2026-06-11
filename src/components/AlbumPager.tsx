@@ -23,8 +23,21 @@ export function AlbumPager({ teams, stickersByCode, collection, page, onTap, onP
     if (Math.abs(el.scrollLeft - target) > 2) {
       suppress.current = true;
       el.scrollTo({ left: target, behavior: "instant" as ScrollBehavior });
-      setTimeout(() => (suppress.current = false), 100);
+      setTimeout(() => (suppress.current = false), 400); // Fix 4: 400ms for iOS Safari late momentum events
     }
+  }, [page]);
+
+  // Fix 2: realign on orientation/resize so the snap position stays correct
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const realign = () => {
+      suppress.current = true;
+      el.scrollTo({ left: page * el.clientWidth, behavior: "instant" as ScrollBehavior });
+      window.setTimeout(() => (suppress.current = false), 400);
+    };
+    window.addEventListener("resize", realign);
+    return () => window.removeEventListener("resize", realign);
   }, [page]);
 
   const handleScroll = () => {
@@ -34,6 +47,7 @@ export function AlbumPager({ teams, stickersByCode, collection, page, onTap, onP
     if (current !== page) onPageChange(current);
   };
 
+  // NOTE: collection prop changes per tap; deeper memoization deferred until profiling shows jank
   return (
     <div className="pager" ref={ref} onScroll={handleScroll}>
       {teams.map((team) => (

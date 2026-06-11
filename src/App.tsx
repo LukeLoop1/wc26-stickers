@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import stickersData from "./data/stickers.json";
 import teamsData from "./data/teams.json";
 import type { Collection, Sticker, Team } from "./lib/types";
@@ -29,6 +29,10 @@ export default function App() {
   const [toast, setToast] = useState<Toast | null>(null);
   const toastTimer = useRef<number | undefined>(undefined);
 
+  // Fix 1: latest-value ref to avoid stale closure in handleTap
+  const latestCollection = useRef(collection);
+  useEffect(() => { latestCollection.current = collection; }, [collection]);
+
   const stickersByCode = useMemo(() => {
     const m = new Map<string, Sticker[]>();
     for (const s of stickers) {
@@ -53,10 +57,14 @@ export default function App() {
     toastTimer.current = window.setTimeout(() => setToast(null), 4000);
   }
 
-  function handleTap(key: string, label: string) {
-    const prev = collection;
+  // Fix 3: wrap in useCallback; safe because all state is accessed via refs or stable setters
+  const handleTap = useCallback((key: string, label: string) => {
+    // Fix 1: read from ref so rapid back-to-back taps always see the latest state
+    const prev = latestCollection.current;
     const next = cycle(prev, key);
     setCollection(next);
+    latestCollection.current = next; // sync ref immediately for any tap in the same frame
+
     showToast({ msg: `${label} → ${stateOf(next, key)}`, undo: prev });
 
     // Backup nudge: every 10th change if last backup > 7 days ago (or never)
@@ -70,7 +78,8 @@ export default function App() {
         4200,
       );
     }
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // empty dep list intentional: all mutable state accessed via latestCollection ref
 
   const totalHave = countHave(collection, allKeys);
 
@@ -86,13 +95,13 @@ export default function App() {
       />
 
       <nav className="bottom-bar">
-        <button aria-label="Jump to team" onClick={() => setOverlay("wall")}>⊞</button>
+        <button aria-label="Jump to team" aria-expanded={overlay === "wall"} onClick={() => setOverlay("wall")}>⊞</button>
         <span className="overall">{totalHave}/{stickers.length}</span>
-        <button aria-label="Export and backup" onClick={() => setOverlay("export")}>↗</button>
+        <button aria-label="Export and backup" aria-expanded={overlay === "export"} onClick={() => setOverlay("export")}>↗</button>
       </nav>
 
-      {overlay === "wall" ? null /* BadgeWall — Task 10 */ : null}
-      {overlay === "export" ? null /* ExportSheet — Task 11 */ : null}
+      {/* BadgeWall overlay — Task 10 */}
+      {/* ExportSheet overlay — Task 11 */}
 
       {toast && (
         <div className="toast" role="status">
@@ -100,6 +109,7 @@ export default function App() {
           {toast.undo && (
             <button
               onClick={() => {
+                latestCollection.current = toast.undo!;
                 setCollection(toast.undo!);
                 setToast(null);
               }}
