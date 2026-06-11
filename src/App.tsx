@@ -6,10 +6,14 @@ import { countHave, cycle, keyOf, stateOf } from "./lib/collection";
 import { loadCollection, saveCollection } from "./lib/storage";
 import { AlbumPager } from "./components/AlbumPager";
 import { BadgeWall } from "./components/BadgeWall";
+import { ExportSheet } from "./components/ExportSheet";
 
 const stickers = stickersData as unknown as Sticker[];
 const teams = (teamsData as unknown as Team[]).slice().sort((a, b) => a.page - b.page);
 const allKeys = stickers.map((s) => keyOf(s.code, s.num));
+
+const sectionOrder = teams.map((t) => t.code);
+const validKeys = new Set(allKeys);
 
 const PAGE_KEY = "wc26-page";
 const LAST_BACKUP_KEY = "wc26-last-backup";
@@ -113,7 +117,23 @@ export default function App() {
           onClose={() => setOverlay("none")}
         />
       )}
-      {/* ExportSheet overlay — Task 11 */}
+      {overlay === "export" && (
+        <ExportSheet
+          collection={collection}
+          stickers={stickers}
+          sectionOrder={sectionOrder}
+          validKeys={validKeys}
+          onRestore={(c) => {
+            latestCollection.current = c;
+            setCollection(c);
+          }}
+          onBackedUp={() => {
+            localStorage.setItem(LAST_BACKUP_KEY, String(Date.now()));
+            localStorage.setItem(CHANGES_KEY, "0");
+          }}
+          onClose={() => setOverlay("none")}
+        />
+      )}
 
       {toast && (
         <div className="toast" role="status">
